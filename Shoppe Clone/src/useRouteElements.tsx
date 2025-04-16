@@ -2,12 +2,17 @@ import { useRoutes } from 'react-router-dom';
 import Login from './pages/Login';
 import ProductList from './pages/ProductList';
 import Register from './pages/Register';
+import RegisterLayout from './layout/RegisterLayout';
 
 export default function useRouteElements() {
     const routeElements = useRoutes([
         {
             path: '/login',
-            element: <Login />
+            element: (
+                <RegisterLayout>
+                    <Login />
+                </RegisterLayout>
+            )
         },
         {
             path: '/',
@@ -15,7 +20,11 @@ export default function useRouteElements() {
         },
         {
             path: '/register',
-            element: <Register />
+            element: (
+                <RegisterLayout>
+                    <Register />
+                </RegisterLayout>
+            )
         }
     ]);
     return routeElements;
