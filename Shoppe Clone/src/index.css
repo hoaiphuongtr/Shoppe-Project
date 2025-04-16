@@ -1,7 +1,7 @@
 @import 'tailwindcss';
-/* @themes {
-      --color-orange: #ee4d2d;
-  } */
+@themes {
+    --color-orange: #ee4d2d;
+}
 html {
     height: 100%;
     line-height: 1.2;
