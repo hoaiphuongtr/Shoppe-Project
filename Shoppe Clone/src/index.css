@@ -2,6 +2,15 @@
 @theme {
     --color-orange: #ee4d2d;
 }
+@layer components {
+    container {
+        max-width: 80rem;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
 html {
     height: 100%;
     line-height: 1.2;
