@@ -1,36 +1,96 @@
-import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { yupResolver } from '@hookform/resolvers/yup';
+import Input from 'src/components/Input';
+import { ErrorResponseApi } from 'src/types/utils.type';
+import { LoginSchema, loginSchema } from 'src/utils/rules';
+import { isAxiosUnprocessableEntityError } from 'src/utils/utils';
+import { AppContext } from 'src/contexts/app.context';
+import Button from 'src/components/Button';
+import { path } from 'src/components/constants/path';
+import authApi from './../../apis/auth.api';
 
 export default function Login() {
+    const {
+        register,
+        handleSubmit,
+        setError,
+        formState: { errors }
+    } = useForm<LoginSchema>({
+        resolver: yupResolver(loginSchema)
+    });
+    const { setIsAuthenticated, setProfile } = useContext(AppContext);
+    const navigate = useNavigate();
+    const loginMutation = useMutation({
+        mutationFn: (body: LoginSchema) => authApi.login(body)
+    });
+    const onSubmit = handleSubmit((data) => {
+        loginMutation.mutate(data, {
+            onSuccess: (data) => {
+                setIsAuthenticated(true);
+                setProfile(data.data.data.user);
+                navigate('/');
+            },
+            onError: (error) => {
+                if (
+                    isAxiosUnprocessableEntityError<
+                        ErrorResponseApi<LoginSchema>
+                    >(error)
+                ) {
+                    const errorForm = error.response?.data.data;
+                    if (errorForm) {
+                        Object.keys(errorForm).forEach((key) => {
+                            setError(key as keyof LoginSchema, {
+                                message: errorForm[key as keyof LoginSchema],
+                                type: 'Server'
+                            });
+                        });
+                    }
+                }
+            }
+        });
+    });
     return (
         <div className='bg-orange'>
             <div className='container'>
                 <div className='grid grid-cols-1 lg:grid-cols-5 py-12 lg:py-32 lg:pr-10'>
                     <div className='lg:col-span-2 lg:col-start-4'>
-                        <form className='p-10 rounded bg-white shadow-sm'>
+                        <form
+                            className='p-10 rounded bg-white shadow-sm'
+                            onSubmit={onSubmit}
+                            noValidate
+                        >
                             <div className='text-2xl'>Đăng nhập</div>
-                            <div className='mt-8'>
-                                <input
-                                    type='email'
-                                    name='email'
-                                    className='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                                    placeholder='Email'
-                                />
-                                <div className='mt-1 text-red-600 min-h-[1rem] text-sm'></div>
-                            </div>
+                            <Input
+                                className='mt-8'
+                                name='email'
+                                placeholder='Email'
+                                register={register}
+                                type='email'
+                                autoComplete='on'
+                                errorMessage={errors.email?.message}
+                            />
+                            <Input
+                                className='mt-2'
+                                name='password'
+                                placeholder='Password'
+                                register={register}
+                                type='password'
+                                autoComplete='on'
+                                errorMessage={errors.password?.message}
+                            />
                             <div className='mt-3'>
-                                <input
-                                    type='password'
-                                    name='password'
-                                    className='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                                    placeholder='Password'
-                                    autoComplete='on'
-                                />
-                                <div className='mt-1 text-red-600 min-h-[1rem] text-sm'></div>
-                            </div>
-                            <div className='mt-3'>
-                                <button className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'>
+                                <Button
+                                    type='submit'
+                                    className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600
+                                    flex justify-center items-center'
+                                    isLoading={loginMutation.isPending}
+                                    disabled={loginMutation.isPending}
+                                >
                                     Đăng nhập
-                                </button>
+                                </Button>
                             </div>
                             <div className='flex items-center justify-center mt-8'>
                                 <span className='text-gray-400'>
@@ -38,7 +98,7 @@ export default function Login() {
                                 </span>
                                 <Link
                                     className='text-red-400 ml-1'
-                                    to='/register'
+                                    to={path.register}
                                 >
                                     Đăng ký
                                 </Link>

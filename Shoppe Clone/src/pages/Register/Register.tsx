@@ -1,27 +1,83 @@
-import { RegisterOptions, useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { omit } from 'lodash';
 import Input from 'src/components/Input';
-import { getRules } from 'src/utils/rules';
+import { schema, Schema } from 'src/utils/rules';
 
-export interface FormData {
-    email: string;
-    password: string;
-    confirm_password: string;
-}
+import { isAxiosUnprocessableEntityError } from 'src/utils/utils';
+import { ErrorResponseApi } from 'src/types/utils.type';
+import { useContext } from 'react';
+import { AppContext } from 'src/contexts/app.context';
+import Button from 'src/components/Button';
+import { path } from 'src/components/constants/path';
+import authApi from './../../apis/auth.api';
+
+type FormData = Schema;
 export default function Register() {
+    const { setProfile } = useContext(AppContext);
     const {
         register,
         handleSubmit,
-        getValues,
-        watch,
+        setError,
         formState: { errors }
-    } = useForm<FormData>();
-    const onSubmit = handleSubmit((data) => {
-        console.log(data);
+    } = useForm<FormData>({
+        resolver: yupResolver(schema)
     });
-    const rules = getRules(getValues);
-    console.log(errors);
-    console.log(watch());
+    const registerAccountMutation = useMutation({
+        mutationFn: (body: Omit<FormData, 'confirm_password'>) =>
+            authApi.registerAccount(body)
+    });
+    const navigate = useNavigate();
+    const onSubmit = handleSubmit((data) => {
+        const body = omit(data, ['confirm_password']);
+        registerAccountMutation.mutate(body, {
+            onSuccess: (data) => {
+                setProfile(data.data.data.user);
+                navigate(path.login, { replace: true });
+            },
+            onError: (error) => {
+                if (
+                    isAxiosUnprocessableEntityError<
+                        ErrorResponseApi<Omit<FormData, 'confirm_password'>>
+                    >(error)
+                ) {
+                    const errorForm = error.response?.data.data;
+                    if (errorForm) {
+                        Object.keys(errorForm).forEach((key) => {
+                            setError(
+                                key as keyof Omit<FormData, 'confirm_password'>,
+                                {
+                                    message:
+                                        errorForm[
+                                            key as keyof Omit<
+                                                FormData,
+                                                'confirm_password'
+                                            >
+                                        ],
+                                    type: 'Server'
+                                }
+                            );
+                        });
+                    }
+                    // if (errorForm?.email) {
+                    //     setError('email', {
+                    //         message: errorForm.email,
+                    //         type: 'Server'
+                    //     });
+                    // }
+                    // if (errorForm?.password) {
+                    //     setError('password', {
+                    //         message: errorForm.password,
+                    //         type: 'Server'
+                    //     });
+                    // }
+                }
+            }
+        });
+    });
+
     return (
         <div className='bg-orange'>
             <div className='container'>
@@ -38,7 +94,6 @@ export default function Register() {
                                 name='email'
                                 placeholder='Email'
                                 register={register}
-                                rules={rules.email}
                                 type='email'
                                 autoComplete='on'
                                 errorMessage={errors.email?.message}
@@ -48,7 +103,6 @@ export default function Register() {
                                 name='password'
                                 placeholder='Password'
                                 register={register}
-                                rules={rules.password}
                                 type='password'
                                 autoComplete='on'
                                 errorMessage={errors.password?.message}
@@ -59,24 +113,30 @@ export default function Register() {
                                 name='confirm_password'
                                 placeholder='Confirm Password'
                                 register={register}
-                                rules={rules.confirm_password}
                                 type='password'
                                 autoComplete='on'
                                 errorMessage={errors.confirm_password?.message}
                             />
                             <div className='mt-2'>
-                                <button
+                                <Button
                                     type='submit'
-                                    className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
+                                    className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600 flex justify-center items-center'
+                                    isLoading={
+                                        registerAccountMutation.isPending
+                                    }
+                                    disabled={registerAccountMutation.isPending}
                                 >
                                     Đăng ký
-                                </button>
+                                </Button>
                             </div>
                             <div className='flex items-center justify-center mt-8'>
                                 <span className='text-gray-400'>
                                     Bạn đã có tài khoản?
                                 </span>
-                                <Link className='text-red-400 ml-1' to='/login'>
+                                <Link
+                                    className='text-red-400 ml-1'
+                                    to={path.login}
+                                >
                                     Đăng nhập
                                 </Link>
                             </div>
