@@ -3,14 +3,17 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
+import authApi from './../../apis/auth.api';
 import Input from 'src/components/Input';
-import { ErrorResponseApi } from 'src/types/utils.type';
-import { LoginSchema, loginSchema } from 'src/utils/rules';
-import { isAxiosUnprocessableEntityError } from 'src/utils/utils';
-import { AppContext } from 'src/contexts/app.context';
 import Button from 'src/components/Button';
 import { path } from 'src/components/constants/path';
-import authApi from './../../apis/auth.api';
+import { ErrorResponseApi } from 'src/types/utils.type';
+import { isAxiosUnprocessableEntityError } from 'src/utils/utils';
+import { Schema, schema } from 'src/utils/rules';
+import { AppContext } from 'src/contexts/app.context';
+
+type FormData = Pick<Schema,'email' | 'password'>
+const loginSchema = schema.pick(['email','password'])
 
 export default function Login() {
     const {
@@ -18,13 +21,13 @@ export default function Login() {
         handleSubmit,
         setError,
         formState: { errors }
-    } = useForm<LoginSchema>({
+    } = useForm<FormData>({
         resolver: yupResolver(loginSchema)
     });
     const { setIsAuthenticated, setProfile } = useContext(AppContext);
     const navigate = useNavigate();
     const loginMutation = useMutation({
-        mutationFn: (body: LoginSchema) => authApi.login(body)
+        mutationFn: (body: FormData) => authApi.login(body)
     });
     const onSubmit = handleSubmit((data) => {
         loginMutation.mutate(data, {
@@ -36,14 +39,14 @@ export default function Login() {
             onError: (error) => {
                 if (
                     isAxiosUnprocessableEntityError<
-                        ErrorResponseApi<LoginSchema>
+                        ErrorResponseApi<FormData>
                     >(error)
                 ) {
                     const errorForm = error.response?.data.data;
                     if (errorForm) {
                         Object.keys(errorForm).forEach((key) => {
-                            setError(key as keyof LoginSchema, {
-                                message: errorForm[key as keyof LoginSchema],
+                            setError(key as keyof FormData, {
+                                message: errorForm[key as keyof FormData],
                                 type: 'Server'
                             });
                         });
@@ -52,6 +55,7 @@ export default function Login() {
             }
         });
     });
+    
     return (
         <div className='bg-orange'>
             <div className='container'>

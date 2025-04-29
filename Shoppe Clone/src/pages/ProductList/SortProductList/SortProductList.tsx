@@ -1,4 +1,5 @@
 import { createSearchParams, Link, useNavigate } from 'react-router-dom';
+import { omit } from 'lodash';
 import classNames from 'classnames';
 import { QueryConfig } from '../ProductList';
 import {
@@ -8,12 +9,12 @@ import {
     order as OrderConstant
 } from './../../../components/constants/product';
 import { path } from 'src/components/constants/path';
-import { omit } from 'lodash';
 
 interface Props {
     queryConfig: QueryConfig;
     pageLimit: number;
 }
+
 export default function SortProductList({ queryConfig, pageLimit }: Props) {
     const page = Number(queryConfig.page);
     const { sort_by = sortBy.createdAt, order } = queryConfig;
@@ -45,6 +46,7 @@ export default function SortProductList({ queryConfig, pageLimit }: Props) {
             }).toString()
         });
     };
+    
     return (
         <div className='bg-gray-300/40 py-4 px-3'>
             <div className='flex flex-wrap items-center justify-between gap-2'>

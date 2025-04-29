@@ -1,12 +1,56 @@
-import { Link } from 'react-router-dom';
+import { createSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import classNames from 'classnames';
 import Button from 'src/components/Button';
 import { path } from 'src/components/constants/path';
-import Input from 'src/components/Input';
+import InputNumber from 'src/components/InputNumber/InputNumber';
+import { QueryConfig } from '../ProductList';
+import { Schema, schema } from 'src/utils/rules';
+import { Category } from 'src/types/category.type';
+import { NoUndefinedField } from 'src/types/utils.type';
+import RatingStars from 'src/pages/RatingStars';
+import { omit } from 'lodash';
 
-export default function AsideFilter() {
+interface Props{
+    queryConfig : QueryConfig;
+    categories : Category[] 
+}
+type FormData = NoUndefinedField<Pick<Schema,'price_max'|'price_min'>>
+const priceSchema  = schema.pick(['price_max','price_min'])
+
+export default function AsideFilter({categories, queryConfig} : Props) {
+    const {category} = queryConfig;
+    const navigate = useNavigate()
+    const {control, handleSubmit, trigger, formState : {errors}} = useForm<FormData>({
+        defaultValues : {
+            price_max : '',
+            price_min : ''
+        },
+        resolver : yupResolver(priceSchema)
+    })
+    const onSubmit = handleSubmit(data => {
+        navigate({
+            pathname : path.home,
+            search : createSearchParams({
+                ...queryConfig,
+                price_max : data.price_max,
+                price_min : data.price_min
+            }).toString()
+        })
+    })
+    const handleRemoveAll = () => {
+        navigate({
+            pathname : path.home,
+            search : createSearchParams(omit(queryConfig,['price_max','price_min','category','rating_filter'])).toString()
+        })
+    }
+
     return (
         <div className='py-4'>
-            <Link to={path.home} className='flex items-center font-bold'>
+            <Link to={path.home} className={classNames('flex items-center font-bold',{
+                'text-orange' : !category
+            })}>
                 <svg viewBox='0 0 12 10' className='w-3 h-4 mr-3 fill-current'>
                     <g fillRule='evenodd' stroke='none' strokeWidth={1}>
                         <g transform='translate(-373 -208)'>
@@ -24,25 +68,35 @@ export default function AsideFilter() {
             </Link>
             <div className='bg-gray-300 h-[1px] my-4' />
             <ul>
-                <li className='py-2 pl-2'>
+                {categories.map((categoryItem) => {
+                const isActive = category === categoryItem._id;
+                return(
+                    <li className='py-2 pl-2' key={categoryItem._id}>
                     <Link
-                        to={path.home}
-                        className='relative px-2 text-orange font-semibold'
+                        to={{
+                            pathname : path.home,
+                            search : createSearchParams({
+                                ...queryConfig,
+                                category : categoryItem._id
+                            }).toString()
+                        }}
+                        className={classNames('relative px-2',{
+                            'text-orange font-semibold' : isActive
+                        })}
                     >
+                        {isActive && 
                         <svg
                             viewBox='0 0 4 7'
                             className='fill-orange h-2 w-2 absolute top-1 left-[-10px]'
                         >
                             <polygon points='4 3.5 0 0 0 7' />
-                        </svg>
-                        Thời trang nam
+                        </svg>}
+                        {categoryItem.name}
                     </Link>
                 </li>
-                <li className='py-2 pl-2'>
-                    <Link to={path.home} className='relative px-2 '>
-                        Điện thoại
-                    </Link>
-                </li>
+                )})}
+               
+                
             </ul>
             <Link
                 to={path.home}
@@ -69,25 +123,43 @@ export default function AsideFilter() {
             </Link>
             <div className='bg-gray-300 h-[1px] my-4' />
             <div className='my-5'>
-                <div>Khoản giá</div>
-                <form className='mt-2'>
+                <div>Khoảng giá</div>
+                <form className='mt-2' onSubmit={onSubmit}>
                     <div className='flex items-start'>
-                        <Input
+                        <Controller control={control} name='price_min' render = {({field : {onChange, value, ref}}) => {return(
+                            <InputNumber
                             type='text'
                             className='grow'
-                            name='from'
+                            onChange={event => {
+                                onChange(event);
+                                trigger('price_max')
+                            }}
                             placeholder='₫ TỪ'
+                            classNameError  = 'hidden'
                             classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+                            value={value}
+                            ref = {ref}
                         />
+                        )}}/>
+                        
                         <div className='mx-2 mt-2 shrink-0'>-</div>
-                        <Input
+                        <Controller control={control} name='price_max' render = {({field : {onChange, value, ref}}) => {return(
+                            <InputNumber
                             type='text'
                             className='grow'
-                            name='from'
+                            onChange={event => {
+                                onChange(event);
+                                trigger('price_min')
+                            }}
                             placeholder='₫ ĐẾN'
+                            classNameError = 'hidden'
                             classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+                            value={value}
+                            ref = {ref}
                         />
+                        )}}/>
                     </div>
+                    <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm text-center'>{errors.price_min?.message}</div>
                     <Button className='w-full p-2 uppercase bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center'>
                         Áp dụng
                     </Button>
@@ -95,128 +167,9 @@ export default function AsideFilter() {
             </div>
             <div className='bg-gray-300 h-[1px] my-4' />
             <div className='text-sm'>Đánh giá</div>
-            <ul className='my-3'>
-                <li className='py-1 pl-2'>
-                    <Link to='' className='flex items-center text-sm'>
-                        {Array(5)
-                            .fill(0)
-                            .map((_, index) => (
-                                <svg
-                                    viewBox='0 0 9.5 8'
-                                    className='w-4 h-4 mr-1'
-                                    key={index}
-                                >
-                                    <defs>
-                                        <linearGradient
-                                            id='ratingStarGradient'
-                                            x1='50%'
-                                            x2='50%'
-                                            y1='0%'
-                                            y2='100%'
-                                        >
-                                            <stop
-                                                offset={0}
-                                                stopColor='#ffca11'
-                                            />
-                                            <stop
-                                                offset={1}
-                                                stopColor='#ffad27'
-                                            />
-                                        </linearGradient>
-                                        <polygon
-                                            id='ratingStar'
-                                            points='14.910357 6.35294118 12.4209136 7.66171903 12.896355 4.88968305 10.8823529 2.92651626 13.6656353 2.52208166 14.910357 0 16.1550787 2.52208166 18.9383611 2.92651626 16.924359 4.88968305 17.3998004 7.66171903'
-                                        />
-                                    </defs>
-                                    <g
-                                        fill='url(#ratingStarGradient)'
-                                        fillRule='evenodd'
-                                        stroke='none'
-                                        strokeWidth={1}
-                                    >
-                                        <g transform='translate(-876 -1270)'>
-                                            <g transform='translate(155 992)'>
-                                                <g transform='translate(600 29)'>
-                                                    <g transform='translate(10 239)'>
-                                                        <g transform='translate(101 10)'>
-                                                            <use
-                                                                stroke='#ffa727'
-                                                                strokeWidth='.5'
-                                                                xlinkHref='#ratingStar'
-                                                            />
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </g>
-                                </svg>
-                            ))}
-                        <span>Trở lên</span>
-                    </Link>
-                </li>
-                <li className='py-1 pl-2'>
-                    <Link to='' className='flex items-center text-sm'>
-                        {Array(5)
-                            .fill(0)
-                            .map((_, index) => (
-                                <svg
-                                    viewBox='0 0 9.5 8'
-                                    className='w-4 h-4 mr-1'
-                                    key={index}
-                                >
-                                    <defs>
-                                        <linearGradient
-                                            id='ratingStarGradient'
-                                            x1='50%'
-                                            x2='50%'
-                                            y1='0%'
-                                            y2='100%'
-                                        >
-                                            <stop
-                                                offset={0}
-                                                stopColor='#ffca11'
-                                            />
-                                            <stop
-                                                offset={1}
-                                                stopColor='#ffad27'
-                                            />
-                                        </linearGradient>
-                                        <polygon
-                                            id='ratingStar'
-                                            points='14.910357 6.35294118 12.4209136 7.66171903 12.896355 4.88968305 10.8823529 2.92651626 13.6656353 2.52208166 14.910357 0 16.1550787 2.52208166 18.9383611 2.92651626 16.924359 4.88968305 17.3998004 7.66171903'
-                                        />
-                                    </defs>
-                                    <g
-                                        fill='url(#ratingStarGradient)'
-                                        fillRule='evenodd'
-                                        stroke='none'
-                                        strokeWidth={1}
-                                    >
-                                        <g transform='translate(-876 -1270)'>
-                                            <g transform='translate(155 992)'>
-                                                <g transform='translate(600 29)'>
-                                                    <g transform='translate(10 239)'>
-                                                        <g transform='translate(101 10)'>
-                                                            <use
-                                                                stroke='#ffa727'
-                                                                strokeWidth='.5'
-                                                                xlinkHref='#ratingStar'
-                                                            />
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </g>
-                                </svg>
-                            ))}
-                        <span>Trở lên</span>
-                    </Link>
-                </li>
-            </ul>
+            <RatingStars queryConfig = {queryConfig}/>
             <div className='bg-gray-300 h-[1px] my-4' />
-            <Button className='w-full p-2 uppercase bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center'>
+            <Button className='w-full p-2 uppercase bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center' onClick={handleRemoveAll}>
                 Xóa tất cả
             </Button>
         </div>

@@ -1,20 +1,21 @@
+import { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { omit } from 'lodash';
+import authApi from './../../apis/auth.api';
 import Input from 'src/components/Input';
-import { schema, Schema } from 'src/utils/rules';
-
-import { isAxiosUnprocessableEntityError } from 'src/utils/utils';
-import { ErrorResponseApi } from 'src/types/utils.type';
-import { useContext } from 'react';
-import { AppContext } from 'src/contexts/app.context';
 import Button from 'src/components/Button';
 import { path } from 'src/components/constants/path';
-import authApi from './../../apis/auth.api';
+import { schema, Schema } from 'src/utils/rules';
+import { isAxiosUnprocessableEntityError } from 'src/utils/utils';
+import { ErrorResponseApi } from 'src/types/utils.type';
+import { AppContext } from 'src/contexts/app.context';
 
-type FormData = Schema;
+type FormData = Pick<Schema,'confirm_password'|'password'|'email'>;
+const registerSchema = schema.pick(['confirm_password','email','password'])
+
 export default function Register() {
     const { setProfile } = useContext(AppContext);
     const {
@@ -23,7 +24,7 @@ export default function Register() {
         setError,
         formState: { errors }
     } = useForm<FormData>({
-        resolver: yupResolver(schema)
+        resolver: yupResolver(registerSchema)
     });
     const registerAccountMutation = useMutation({
         mutationFn: (body: Omit<FormData, 'confirm_password'>) =>
