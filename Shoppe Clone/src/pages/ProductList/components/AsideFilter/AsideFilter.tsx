@@ -2,55 +2,54 @@ import { createSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import classNames from 'classnames';
+import { omit } from 'lodash';
+import { QueryConfig } from 'src/hooks/useQueryConfig';
 import Button from 'src/components/Button';
 import { path } from 'src/components/constants/path';
 import InputNumber from 'src/components/InputNumber/InputNumber';
-import { QueryConfig } from '../../ProductList';
 import { Schema, schema } from 'src/utils/rules';
 import { Category } from 'src/types/category.type';
 import { NoUndefinedField } from 'src/types/utils.type';
-
-import { omit } from 'lodash';
 import RatingStars from '../../RatingStars';
 
-interface Props{
-    queryConfig : QueryConfig;
-    categories : Category[] 
+interface Props {
+    queryConfig: QueryConfig;
+    categories: Category[]
 }
-type FormData = NoUndefinedField<Pick<Schema,'price_max'|'price_min'>>
-const priceSchema  = schema.pick(['price_max','price_min'])
+type FormData = NoUndefinedField<Pick<Schema, 'price_max' | 'price_min'>>
+const priceSchema = schema.pick(['price_max', 'price_min'])
 
-export default function AsideFilter({categories, queryConfig} : Props) {
-    const {category} = queryConfig;
+export default function AsideFilter({ categories, queryConfig }: Props) {
+    const { category } = queryConfig;
     const navigate = useNavigate()
-    const {control, handleSubmit, trigger, formState : {errors}} = useForm<FormData>({
-        defaultValues : {
-            price_max : '',
-            price_min : ''
+    const { control, handleSubmit, trigger, formState: { errors } } = useForm<FormData>({
+        defaultValues: {
+            price_max: '',
+            price_min: ''
         },
-        resolver : yupResolver(priceSchema)
+        resolver: yupResolver(priceSchema)
     })
     const onSubmit = handleSubmit(data => {
         navigate({
-            pathname : path.home,
-            search : createSearchParams({
+            pathname: path.home,
+            search: createSearchParams({
                 ...queryConfig,
-                price_max : data.price_max,
-                price_min : data.price_min
+                price_max: data.price_max,
+                price_min: data.price_min
             }).toString()
         })
     })
     const handleRemoveAll = () => {
         navigate({
-            pathname : path.home,
-            search : createSearchParams(omit(queryConfig,['price_max','price_min','category','rating_filter'])).toString()
+            pathname: path.home,
+            search: createSearchParams(omit(queryConfig, ['price_max', 'price_min', 'category', 'rating_filter'])).toString()
         })
     }
 
     return (
         <div className='py-4'>
-            <Link to={path.home} className={classNames('flex items-center font-bold',{
-                'text-orange' : !category
+            <Link to={path.home} className={classNames('flex items-center font-bold', {
+                'text-orange': !category
             })}>
                 <svg viewBox='0 0 12 10' className='w-3 h-4 mr-3 fill-current'>
                     <g fillRule='evenodd' stroke='none' strokeWidth={1}>
@@ -70,34 +69,35 @@ export default function AsideFilter({categories, queryConfig} : Props) {
             <div className='bg-gray-300 h-[1px] my-4' />
             <ul>
                 {categories.map((categoryItem) => {
-                const isActive = category === categoryItem._id;
-                return(
-                    <li className='py-2 pl-2' key={categoryItem._id}>
-                    <Link
-                        to={{
-                            pathname : path.home,
-                            search : createSearchParams({
-                                ...queryConfig,
-                                category : categoryItem._id
-                            }).toString()
-                        }}
-                        className={classNames('relative px-2',{
-                            'text-orange font-semibold' : isActive
-                        })}
-                    >
-                        {isActive && 
-                        <svg
-                            viewBox='0 0 4 7'
-                            className='fill-orange h-2 w-2 absolute top-1 left-[-10px]'
-                        >
-                            <polygon points='4 3.5 0 0 0 7' />
-                        </svg>}
-                        {categoryItem.name}
-                    </Link>
-                </li>
-                )})}
-               
-                
+                    const isActive = category === categoryItem._id;
+                    return (
+                        <li className='py-2 pl-2' key={categoryItem._id}>
+                            <Link
+                                to={{
+                                    pathname: path.home,
+                                    search: createSearchParams({
+                                        ...queryConfig,
+                                        category: categoryItem._id
+                                    }).toString()
+                                }}
+                                className={classNames('relative px-2', {
+                                    'text-orange font-semibold': isActive
+                                })}
+                            >
+                                {isActive &&
+                                    <svg
+                                        viewBox='0 0 4 7'
+                                        className='fill-orange h-2 w-2 absolute top-1 left-[-10px]'
+                                    >
+                                        <polygon points='4 3.5 0 0 0 7' />
+                                    </svg>}
+                                {categoryItem.name}
+                            </Link>
+                        </li>
+                    )
+                })}
+
+
             </ul>
             <Link
                 to={path.home}
@@ -127,38 +127,42 @@ export default function AsideFilter({categories, queryConfig} : Props) {
                 <div>Khoảng giá</div>
                 <form className='mt-2' onSubmit={onSubmit}>
                     <div className='flex items-start'>
-                        <Controller control={control} name='price_min' render = {({field : {onChange, value, ref}}) => {return(
-                            <InputNumber
-                            type='text'
-                            className='grow'
-                            onChange={event => {
-                                onChange(event);
-                                trigger('price_max')
-                            }}
-                            placeholder='₫ TỪ'
-                            classNameError  = 'hidden'
-                            classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                            value={value}
-                            ref = {ref}
-                        />
-                        )}}/>
-                        
+                        <Controller control={control} name='price_min' render={({ field: { onChange, value, ref } }) => {
+                            return (
+                                <InputNumber
+                                    type='text'
+                                    className='grow'
+                                    onChange={event => {
+                                        onChange(event);
+                                        trigger('price_max')
+                                    }}
+                                    placeholder='₫ TỪ'
+                                    classNameError='hidden'
+                                    classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+                                    value={value}
+                                    ref={ref}
+                                />
+                            )
+                        }} />
+
                         <div className='mx-2 mt-2 shrink-0'>-</div>
-                        <Controller control={control} name='price_max' render = {({field : {onChange, value, ref}}) => {return(
-                            <InputNumber
-                            type='text'
-                            className='grow'
-                            onChange={event => {
-                                onChange(event);
-                                trigger('price_min')
-                            }}
-                            placeholder='₫ ĐẾN'
-                            classNameError = 'hidden'
-                            classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                            value={value}
-                            ref = {ref}
-                        />
-                        )}}/>
+                        <Controller control={control} name='price_max' render={({ field: { onChange, value, ref } }) => {
+                            return (
+                                <InputNumber
+                                    type='text'
+                                    className='grow'
+                                    onChange={event => {
+                                        onChange(event);
+                                        trigger('price_min')
+                                    }}
+                                    placeholder='₫ ĐẾN'
+                                    classNameError='hidden'
+                                    classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+                                    value={value}
+                                    ref={ref}
+                                />
+                            )
+                        }} />
                     </div>
                     <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm text-center'>{errors.price_min?.message}</div>
                     <Button className='w-full p-2 uppercase bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center'>
@@ -168,7 +172,7 @@ export default function AsideFilter({categories, queryConfig} : Props) {
             </div>
             <div className='bg-gray-300 h-[1px] my-4' />
             <div className='text-sm'>Đánh giá</div>
-            <RatingStars queryConfig = {queryConfig}/>
+            <RatingStars queryConfig={queryConfig} />
             <div className='bg-gray-300 h-[1px] my-4' />
             <Button className='w-full p-2 uppercase bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center' onClick={handleRemoveAll}>
                 Xóa tất cả

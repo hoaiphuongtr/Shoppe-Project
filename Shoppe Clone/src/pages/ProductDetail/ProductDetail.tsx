@@ -6,7 +6,8 @@ import InputNumber from "src/components/InputNumber/InputNumber";
 import { calculateRateSale, formatCurrency, formatNumberToSocialStyle, getIdFromNameId } from "src/utils/utils";
 import ProductRating from "src/components/ProductRating";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Product } from "src/types/product.type";
+import { Product as ProductType, ProductListConfig } from "src/types/product.type";
+import Product from "../ProductList/components/Product";
 export default function ProductDetail() {
   const { nameId } = useParams()
   const id = getIdFromNameId(nameId as string)
@@ -19,6 +20,16 @@ export default function ProductDetail() {
   const product = productDetailData?.data.data
   const currentImages = useMemo(() => (product ? product.images.slice(...currentImageIndex) : []), [product, currentImageIndex])
   const imageRef = useRef<HTMLImageElement>(null)
+  const queryConfig: ProductListConfig = { page: '1', category: product?.category._id }
+  const { data: productData } = useQuery({
+    queryKey: ['products', queryConfig],
+    queryFn: () => {
+      return productAPI.getProducts(queryConfig);
+    },
+    enabled: Boolean(product),
+    staleTime: 3 * 60 * 1000
+  });
+  console.log(productData)
   useEffect(() => {
     if (product && product.images.length > 0) {
       setActiveImage(product.images[0])
@@ -28,7 +39,7 @@ export default function ProductDetail() {
     setActiveImage(img)
   }
   const next = () => {
-    if (currentImageIndex[1] < (product as Product).images.length) {
+    if (currentImageIndex[1] < (product as ProductType).images.length) {
       setCurrentImageIndex(prev => [prev[0] + 1, prev[1] + 1])
     }
   }
@@ -211,7 +222,7 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-      <div className='container  ml-12'>
+      <div className='container ml-12'>
         <div className='mt-8 bg-white p-4 shadow'>
           <div className='rounded bg-gray-50 p-4 text-lg capitalize text-slate-700'>Mô tả sản phẩm</div>
           <div className='mx-4 mt-12 mb-4 text-sm leading-loose'>
@@ -222,6 +233,23 @@ export default function ProductDetail() {
             />
           </div>
         </div>
+      </div>
+      <div className="container ml-12">
+        <div className="uppercase text-gray-400 mt-8">Có thể bạn cũng thích</div>
+        {productData && (
+          <div className="mt-2">
+            <div className=' grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3'>
+              {productData.data.data.products.map((product) => (
+                <div
+                  className='col-span-1'
+                  key={product._id}
+                >
+                  <Product product={product} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
