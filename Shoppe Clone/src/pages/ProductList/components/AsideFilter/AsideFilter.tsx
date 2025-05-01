@@ -5,12 +5,13 @@ import classNames from 'classnames';
 import Button from 'src/components/Button';
 import { path } from 'src/components/constants/path';
 import InputNumber from 'src/components/InputNumber/InputNumber';
-import { QueryConfig } from '../ProductList';
+import { QueryConfig } from '../../ProductList';
 import { Schema, schema } from 'src/utils/rules';
 import { Category } from 'src/types/category.type';
 import { NoUndefinedField } from 'src/types/utils.type';
-import RatingStars from 'src/pages/RatingStars';
+
 import { omit } from 'lodash';
+import RatingStars from '../../RatingStars';
 
 interface Props{
     queryConfig : QueryConfig;

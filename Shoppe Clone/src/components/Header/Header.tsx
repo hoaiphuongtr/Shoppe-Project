@@ -1,13 +1,27 @@
-import { useMutation } from '@tanstack/react-query';
 import { useContext } from 'react';
-import { Link } from 'react-router-dom';
-
+import { createSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { omit } from 'lodash';
+import useQueryConfig from 'src/hooks/useQueryConfig';
 import { AppContext } from 'src/contexts/app.context';
 import PopOver from 'src/layout/PopOver';
 import { path } from '../constants/path';
 import authApi from 'src/apis/auth.api';
+import { schema, Schema } from 'src/utils/rules';
 
+type FormData = Pick<Schema, 'name'>
+const nameSchema = schema.pick(['name'])
 export default function Header() {
+    const queryConfig = useQueryConfig()
+    const navigate = useNavigate()
+    const { register, handleSubmit } = useForm<FormData>({
+        defaultValues: {
+            name: ''
+        },
+        resolver: yupResolver(nameSchema)
+    })
     const { setIsAuthenticated, isAuthenticated, setProfile, profile } =
         useContext(AppContext);
     const logOutMutation = useMutation({
@@ -17,6 +31,27 @@ export default function Header() {
             setProfile(null);
         }
     });
+    const onSubmitSearch = handleSubmit(data => {
+        const config = queryConfig.order ? omit(
+            {
+                ...queryConfig,
+                name: data.name
+            },
+            ['order', 'sort_by']
+        ) : (
+            {
+                ...queryConfig,
+                name: data.name
+            }
+        )
+        navigate({
+            pathname: path.home,
+            search: createSearchParams(
+                config
+            ).toString()
+
+        })
+    })
     const handleLogOut = () => logOutMutation.mutate();
     return (
         <div className='pb-5 pt-2 bg-[linear-gradient(-180deg,#f53d2d,#f63)] text-white text-sm'>
@@ -166,13 +201,13 @@ export default function Header() {
                             </g>
                         </svg>
                     </Link>
-                    <form className='col-span-9'>
+                    <form className='col-span-9' onSubmit={onSubmitSearch}>
                         <div className='bg-white rounded-sm p-1 flex'>
                             <input
                                 type='text'
-                                name='search'
                                 className='text-black px-2 py-1 flex-grow border-none outline-none bg-transparent '
                                 placeholder='Món Gì Cũng Có, Siêu Deal 0 Đ'
+                                {...register('name')}
                             />
                             <button className='rounded-sm py-2 px-6 flex-shrink-0 bg-orange hover:opacity-90'>
                                 <svg

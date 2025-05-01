@@ -1,14 +1,14 @@
 import { createSearchParams, Link, useNavigate } from 'react-router-dom';
 import { omit } from 'lodash';
 import classNames from 'classnames';
-import { QueryConfig } from '../ProductList';
+import { QueryConfig } from 'src/hooks/useQueryConfig';
+import { path } from 'src/components/constants/path';
 import {
     sortBy,
     SortBy as SortByType,
     Order as OrderType,
     order as OrderConstant
-} from './../../../components/constants/product';
-import { path } from 'src/components/constants/path';
+} from 'src/components/constants/product';
 
 interface Props {
     queryConfig: QueryConfig;
@@ -46,7 +46,7 @@ export default function SortProductList({ queryConfig, pageLimit }: Props) {
             }).toString()
         });
     };
-    
+
     return (
         <div className='bg-gray-300/40 py-4 px-3'>
             <div className='flex flex-wrap items-center justify-between gap-2'>
