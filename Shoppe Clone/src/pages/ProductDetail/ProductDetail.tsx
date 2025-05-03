@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom"
 import DOMPurify from 'dompurify';
 import productAPI from "src/apis/product.api";
@@ -8,9 +8,13 @@ import { Product as ProductType, ProductListConfig } from "src/types/product.typ
 import ProductRating from "src/components/ProductRating";
 import QuantityController from "src/components/QuantityController";
 import Product from "../ProductList/components/Product";
+import purchaseAPI, { AddToCartType } from "src/apis/purchase.api";
+import { PurchasesStatus } from "src/components/constants/purchase";
+import { toast } from "react-toastify";
 export default function ProductDetail() {
   const [buyCount, setBuyCount] = useState(1)
   const { nameId } = useParams()
+  const queryClient = useQueryClient()
   const id = getIdFromNameId(nameId as string)
   const { data: productDetailData } = useQuery({
     queryKey: ['product', id],
@@ -30,7 +34,9 @@ export default function ProductDetail() {
     enabled: Boolean(product),
     staleTime: 3 * 60 * 1000
   });
-  console.log(productData)
+  const addToCartMutation = useMutation({
+    mutationFn: (body: AddToCartType) => purchaseAPI.addToCart(body)
+  })
   useEffect(() => {
     if (product && product.images.length > 0) {
       setActiveImage(product.images[0])
@@ -72,6 +78,17 @@ export default function ProductDetail() {
   }
   const handleChangeBuyCount = (value: number) => {
     setBuyCount(value)
+  }
+  const addToCart = () => {
+    addToCartMutation.mutate({
+      product_id: product?._id as string,
+      buy_count: buyCount
+    }, {
+      onSuccess: (data) => {
+        toast.success(data.data.message, { autoClose: 3000 })
+        queryClient.invalidateQueries({ queryKey: ['purchases', { status: PurchasesStatus.inCart }] })
+      }
+    })
   }
   if (!product) return null
   return (
@@ -162,7 +179,7 @@ export default function ProductDetail() {
                 <div className='ml-6 text-sm text-gray-500'>{product.quantity} sản phẩm có sẵn</div>
               </div>
               <div className='mt-8 flex items-center'>
-                <button className='flex h-12 items-center justify-center rounded-sm border border-orange bg-orange/10 px-5 capitalize text-orange shadow-sm hover:bg-orange/5'>
+                <button className='flex h-12 items-center justify-center rounded-sm border border-orange bg-orange/10 px-5 capitalize text-orange shadow-sm hover:bg-orange/5' onClick={addToCart}>
                   <svg
                     enableBackground='new 0 0 15 15'
                     viewBox='0 0 15 15'

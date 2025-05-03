@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { createSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { omit } from 'lodash';
 import useQueryConfig from 'src/hooks/useQueryConfig';
@@ -10,11 +10,17 @@ import PopOver from 'src/layout/PopOver';
 import { path } from '../constants/path';
 import authApi from 'src/apis/auth.api';
 import { schema, Schema } from 'src/utils/rules';
+import { PurchasesStatus } from '../constants/purchase';
+import purchaseAPI from 'src/apis/purchase.api';
+import noProduct from 'src/assets/images/no-product.png'
+import { formatCurrency } from 'src/utils/utils';
 
 type FormData = Pick<Schema, 'name'>
 const nameSchema = schema.pick(['name'])
+const MAX_DISPLAY = 5
 export default function Header() {
     const queryConfig = useQueryConfig()
+    const queryClient = useQueryClient()
     const navigate = useNavigate()
     const { register, handleSubmit } = useForm<FormData>({
         defaultValues: {
@@ -29,8 +35,17 @@ export default function Header() {
         onSuccess: () => {
             setIsAuthenticated(false);
             setProfile(null);
+            queryClient.removeQueries({ queryKey: ['purchases', { status: PurchasesStatus.inCart }] })
         }
     });
+    //Khi chúng ta chuyển trang thì Header chỉ bị re-render chứ không bị unmount - mounting again
+    //Tất nhiên trừ trường hợp LogOut rồi nhảy sang RegisterLayout rồi nhảy vào lại nên các query này sẽ không bị inactive => không cần thiết setStaleTime : Infinity
+    const { data: purchaseListInCartData } = useQuery({
+        queryKey: ['purchases', { status: PurchasesStatus.inCart }],
+        queryFn: () => purchaseAPI.getPurchaseList({ status: PurchasesStatus.inCart }),
+        enabled: isAuthenticated
+    })
+    const purchaseInCartData = purchaseListInCartData?.data.data
     const onSubmitSearch = handleSubmit(data => {
         const config = queryConfig.order ? omit(
             {
@@ -231,137 +246,56 @@ export default function Header() {
                         <PopOver
                             content={
                                 <div className='bg-white relative shadow-md rounded-sm border border-gray-200 max-w-[400px] text-sm'>
-                                    <div className='p-2'>
+                                    {purchaseInCartData ? (<div className='p-2'>
                                         <div className='text-gray-400 capitalize'>
                                             Sản phẩm mới thêm
                                         </div>
                                         <div className='mt-5'>
-                                            <div className='mt-4 flex'>
-                                                <div className='flex-shrink-0'>
-                                                    <img
-                                                        src='https://down-vn.img.susercontent.com/file/a3d0aa23d1e2398e4a3cf818b022e981_tn'
-                                                        alt='product-image'
-                                                        className='w-11 h-11 object-cover'
-                                                    />
-                                                </div>
-                                                <div className='flex-grow ml-2 overflow-hidden'>
-                                                    <div className='truncate'>
-                                                        Túi Đựng Phụ Kiện Điện
-                                                        Thoại, Phụ Kiện Công
-                                                        Nghệ, Túi Đựng Sạc Cáp,
-                                                        Đồ Trang Điểm Mỹ Phẩm,
-                                                        Đồ Công Nghệ
+                                            {purchaseInCartData.slice(0, MAX_DISPLAY).map(purchase => (
+                                                <div className='mt-2 py-2 hover:bg-gray-100 flex' key={purchase._id}>
+                                                    <div className='flex-shrink-0'>
+                                                        <img
+                                                            src={purchase.product.image}
+                                                            alt={purchase.product.name}
+                                                            className='w-11 h-11 object-cover'
+                                                        />
+                                                    </div>
+                                                    <div className='flex-grow ml-2 overflow-hidden'>
+                                                        <div className='truncate'>
+                                                            {purchase.product.name}
+                                                        </div>
+                                                    </div>
+                                                    <div className='ml-2 flex-shrink-0'>
+                                                        <span className='text-orange'>
+                                                            {formatCurrency(purchase.product.price)}
+                                                        </span>
                                                     </div>
                                                 </div>
-                                                <div className='ml-2 flex-shrink-0'>
-                                                    <span className='text-orange'>
-                                                        ₫79.000
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className='mt-4 flex'>
-                                                <div className='flex-shrink-0'>
-                                                    <img
-                                                        src='https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lhyb7krik7nlb0_tn'
-                                                        alt='product-image'
-                                                        className='w-11 h-11 object-cover'
-                                                    />
-                                                </div>
-                                                <div className='flex-grow ml-2 overflow-hidden'>
-                                                    <div className='truncate'>
-                                                        Miếng lót chuột, bàn di
-                                                        chuột nỉ cỡ lỡn 80x30cm
-                                                        , 90x40cm, dày 3cm, trải
-                                                        bàn làm việc cực sang
-                                                        trọng, lướt chuột êm
-                                                    </div>
-                                                </div>
-                                                <div className='ml-2 flex-shrink-0'>
-                                                    <span className='text-orange'>
-                                                        ₫79.000
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className='mt-4 flex'>
-                                                <div className='flex-shrink-0'>
-                                                    <img
-                                                        src='	https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lkdef9gr7o9o73_tn'
-                                                        alt='product-image'
-                                                        className='w-11 h-11 object-cover'
-                                                    />
-                                                </div>
-                                                <div className='flex-grow ml-2 overflow-hidden'>
-                                                    <div className='truncate'>
-                                                        Miếng Lót Chuột Cỡ Lớn,
-                                                        Thảm Nỉ Trải Bàn Làm
-                                                        Việc, Deskpad nỉ lớn
-                                                        Full bàn 120x60, 100x50,
-                                                        90x40, 80x30
-                                                    </div>
-                                                </div>
-                                                <div className='ml-2 flex-shrink-0'>
-                                                    <span className='text-orange'>
-                                                        ₫69.000
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className='mt-4 flex'>
-                                                <div className='flex-shrink-0'>
-                                                    <img
-                                                        src='https://down-vn.img.susercontent.com/file/vn-11134207-7ra0g-m87duirj8o76ee_tn'
-                                                        alt='product-image'
-                                                        className='w-11 h-11 object-cover'
-                                                    />
-                                                </div>
-                                                <div className='flex-grow ml-2 overflow-hidden'>
-                                                    <div className='truncate'>
-                                                        Túi đựng bàn phím chống
-                                                        sốc chống xước giúp bảo
-                                                        vệ bàn phím DoDo Gear
-                                                    </div>
-                                                </div>
-                                                <div className='ml-2 flex-shrink-0'>
-                                                    <span className='text-orange'>
-                                                        ₫59.000
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className='mt-4 flex'>
-                                                <div className='flex-shrink-0'>
-                                                    <img
-                                                        src='https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-ljyx482rtude41_tn'
-                                                        alt='product-image'
-                                                        className='w-11 h-11 object-cover'
-                                                    />
-                                                </div>
-                                                <div className='flex-grow ml-2 overflow-hidden'>
-                                                    <div className='truncate'>
-                                                        Mixi Gaming - Nút bàn
-                                                        phím Resin trang trí bàn
-                                                        phím cơ
-                                                    </div>
-                                                </div>
-                                                <div className='ml-2 flex-shrink-0'>
-                                                    <span className='text-orange'>
-                                                        ₫284.050
-                                                    </span>
-                                                </div>
-                                            </div>
+                                            ))}
+
+
                                         </div>
                                         <div className='flex mt-6 items-center justify-between'>
                                             <div className='capitalize text-xs text-gray-500'>
-                                                Thêm hàng vào giỏ
+                                                {purchaseInCartData.length > MAX_DISPLAY ? purchaseInCartData.length - MAX_DISPLAY : ''} Thêm hàng vào giỏ
                                             </div>
                                             <button className='capitalize bg-orange hover:bg-opacity-90 px-4 py-2 rounded-sm text-white'>
                                                 Xem giỏ hàng
                                             </button>
                                         </div>
-                                    </div>
+                                    </div>) : (
+                                        <div className="h-[250px] w-[400px] flex flex-col justify-center items-center p-2">
+                                            <img src={noProduct} alt="no purchase" className="h-24 w-24" />
+                                            <div className="capitalize">Chưa có sản phẩm</div>
+                                        </div>
+                                    )}
+
+
                                 </div>
                             }
                             placement='bottom-end'
                         >
-                            <Link to={path.home}>
+                            <Link to={path.home} className='relative'>
                                 <svg
                                     xmlns='http://www.w3.org/2000/svg'
                                     fill='none'
@@ -376,6 +310,8 @@ export default function Header() {
                                         d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z'
                                     />
                                 </svg>
+                                {purchaseInCartData && <span className='absolute top-[-7px] left-[17px] rounded-full bg-white px-[10px] text-sm text-orange'>{purchaseInCartData?.length}</span>}
+
                             </Link>
                         </PopOver>
                     </div>
