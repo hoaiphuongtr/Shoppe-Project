@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { keyBy } from "lodash"
 import { produce } from "immer"
 import purchaseAPI from "src/apis/purchase.api"
@@ -16,15 +16,36 @@ export interface ExtendPurchase extends PurchaseType {
     checked: boolean
 }
 export default function Cart() {
+    const queryClient = useQueryClient()
     const [extendedPurchases, setExtendedPurchase] = useState<ExtendPurchase[]>([])
-    const { data: purchaseListInCartData, refetch } = useQuery({
-        queryKey: ['purchases', { status: PurchasesStatus.inCart }],
+    const queryKey = ['purchases', { status: PurchasesStatus.inCart }]
+    const { data: purchaseListInCartData } = useQuery({
+        queryKey: queryKey,
         queryFn: () => purchaseAPI.getPurchaseList({ status: PurchasesStatus.inCart }),
 
     })
     const updatePurchaseMutation = useMutation({
         mutationFn: purchaseAPI.updatePurchase,
-        onSuccess: () => { refetch() }
+        onMutate: async (updatedPurchase) => {
+
+            await queryClient.cancelQueries({ queryKey: queryKey })
+            const previousData = queryClient.getQueryData(queryKey)
+            queryClient.setQueryData(queryKey, (oldData: any) => {
+                if (!oldData) return oldData
+                return {
+                    ...oldData,
+                    data: {
+                        ...oldData.data,
+                        data: oldData.data.data.map((purchase: ExtendPurchase) => purchase.product._id === updatedPurchase.product_id ? { ...purchase, buy_count: updatedPurchase.buy_count } : purchase)
+                    }
+                }
+            })
+            return { previousData }
+        },
+        onError: (_err, _variables, context) => {
+            context?.previousData && queryClient.setQueryData(queryKey, context.previousData)
+        },
+        onSettled: () => queryClient.invalidateQueries({ queryKey: queryKey })
     })
     const purchaseInCartData = purchaseListInCartData?.data.data
     const isAllChecked = extendedPurchases?.every(purchase => purchase.checked)
@@ -57,6 +78,7 @@ export default function Cart() {
         }))
     }
     const handleQuantity = (purchaseIndex: number, value: number, enable: boolean) => {
+        const updatedBuyCount = value
         if (enable) {
             const purchase = extendedPurchases[purchaseIndex]
             setExtendedPurchase(produce(draft => {
@@ -64,7 +86,7 @@ export default function Cart() {
             }))
             updatePurchaseMutation.mutate({
                 product_id: purchase.product._id,
-                buy_count: value
+                buy_count: updatedBuyCount
             })
         }
     }
