@@ -3,24 +3,28 @@ export default function Footer() {
   return (
     <footer className='py-10 bg-neutral-100 text-sm'>
       <div className='container mx-auto px-4 space-y-8'>
-        <div className='flex items-center justify-between flex-nowrap text-sm text-gray-600 gap-4 w-full'>
-          <div className='flex-shrink-0'>
+        <div
+          className="flex items-center justify-between flex-nowrap text-gray-600 w-full leading-relaxed whitespace-nowrap px-2"
+          style={{ fontSize: 'clamp(10px, 2.5vw, 14px)' }} // responsive font-size không tràn
+        >
+          <div className="flex-shrink-0">
             © 2025 Shopee. Tất cả các quyền được bảo lưu.
           </div>
-          <div className='flex items-center gap-2 flex-wrap justify-end text-gray-500'>
-            <span className='font-medium text-black'>
+          <div className="flex items-center justify-end gap-x-1 sm:gap-x-2 text-gray-500 flex-nowrap">
+            <span className="font-medium text-black whitespace-nowrap">
               Quốc gia &amp; Khu vực:
             </span>
             {countries.map((country, index) => (
-              <span key={index} className='whitespace-nowrap'>
+              <span key={index} className="whitespace-nowrap">
                 <span className="cursor-pointer">{country}</span>
                 {index < countries.length - 1 && (
-                  <span className='ml-1 text-gray-300'>|</span>
+                  <span className="mx-1 text-gray-300">|</span>
                 )}
               </span>
             ))}
           </div>
         </div>
+
         <div className='text-center text-[0.875rem] leading-relaxed'>
           <div>Công ty TNHH Shopee</div>
           <div className='mt-4'>
@@ -41,5 +45,6 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+
   );
 }
