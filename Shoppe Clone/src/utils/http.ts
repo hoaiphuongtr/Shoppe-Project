@@ -9,6 +9,7 @@ import {
     setProfileToLS
 } from './auth';
 import { path } from 'src/components/constants/path';
+import HttpStatusCode from 'src/components/constants/httpStatusCode.enum';
 
 class Http {
     instance: AxiosInstance;
@@ -48,9 +49,17 @@ class Http {
                 return response;
             },
             function (error: AxiosError) {
-                const data: any | undefined = error.response?.data;
-                const message = data.message || error.message;
-                toast.error(message);
+                if (
+                    error.response?.status !==
+                    HttpStatusCode.UnprocessableEntity
+                ) {
+                    const data: any | undefined = error.response?.data;
+                    const message = data.message || error.message;
+                    toast.error(message);
+                }
+                if (error.response?.status === HttpStatusCode.Unauthorized) {
+                    clearLS();
+                }
                 return Promise.reject(error);
             }
         );

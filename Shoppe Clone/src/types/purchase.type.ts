@@ -14,3 +14,7 @@ export interface PurchaseType {
     updatedAt: string;
     __v: number;
 }
+export interface ExtendPurchase extends PurchaseType {
+    disabled: boolean;
+    checked: boolean;
+}
