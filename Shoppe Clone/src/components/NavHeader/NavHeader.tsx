@@ -6,6 +6,7 @@ import { path } from "../constants/path";
 import { AppContext } from "src/contexts/app.context";
 import authApi from "src/apis/auth.api";
 import { PurchasesStatus } from "../constants/purchase";
+import { getImage } from "src/utils/utils";
 
 
 export default function NavHeader() {
@@ -131,14 +132,14 @@ export default function NavHeader() {
                         </div>
                     }
                 >
-                    <div className='w-6 h-6 mr-2 flex-shrink-0'>
+                    <div className='w-7 h-7 mx-2 flex-shrink-0'>
                         <img
-                            src='	https://down-vn.img.susercontent.com/file/123c61a28743d27a7d7169293ff87290_tn'
+                            src={getImage(profile?.avatar)}
                             alt='avatar'
                             className='w-full h-full object-cover rounded-full'
                         />
                     </div>
-                    <div>{profile?.email}</div>
+                    <div>{profile?.name}</div>
                 </PopOver>
             )}
             {!isAuthenticated && (

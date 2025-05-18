@@ -1,17 +1,16 @@
 export default function Footer() {
   const countries = ['Singapore', 'Indonesia', 'Thailand', 'Malaysia', 'VietNam', 'Philippines', 'Brazil', 'Mexico', 'Colombia', 'Chile', 'Taiwan']
   return (
-    <footer className='py-10 bg-neutral-100 text-sm'>
-      <div className='container mx-auto px-4 space-y-8'>
+    <footer className='bg-neutral-100 text-sm py-10 border-t-[3px] border-t-orange'>
+      <div className='container mx-auto p-4 space-y-8'>
         <div
-          className="flex items-center justify-between flex-nowrap text-gray-600 w-full leading-relaxed whitespace-nowrap px-2"
-          style={{ fontSize: 'clamp(10px, 2.5vw, 14px)' }} // responsive font-size không tràn
+          className="flex flex-col gap-y-2 sm:flex-row sm:items-center sm:justify-between w-full leading-relaxed text-gray-600 px-2"
+          style={{ fontSize: 'clamp(10px, 2.5vw, 14px)' }}
         >
-          <div className="flex-shrink-0">
-            © 2025 Shopee. Tất cả các quyền được bảo lưu.
-          </div>
-          <div className="flex items-center justify-end gap-x-1 sm:gap-x-2 text-gray-500 flex-nowrap">
-            <span className="font-medium text-black whitespace-nowrap">
+          <div>© 2025 Shopee. Tất cả các quyền được bảo lưu.</div>
+
+          <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-gray-500">
+            <span className="font-medium text-black mr-1 whitespace-nowrap">
               Quốc gia &amp; Khu vực:
             </span>
             {countries.map((country, index) => (
@@ -24,7 +23,6 @@ export default function Footer() {
             ))}
           </div>
         </div>
-
         <div className='text-center text-[0.875rem] leading-relaxed'>
           <div>Công ty TNHH Shopee</div>
           <div className='mt-4'>

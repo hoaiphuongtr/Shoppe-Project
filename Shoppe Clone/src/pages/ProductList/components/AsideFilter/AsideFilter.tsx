@@ -47,7 +47,7 @@ export default function AsideFilter({ categories, queryConfig }: Props) {
     }
 
     return (
-        <div className='py-4'>
+        <div className='py-4 ml-3'>
             <Link to={path.home} className={classNames('flex items-center font-bold', {
                 'text-orange': !category
             })}>

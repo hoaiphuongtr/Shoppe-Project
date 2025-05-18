@@ -12,6 +12,7 @@ import purchaseAPI, { AddToCartType } from "src/apis/purchase.api";
 import { PurchasesStatus } from "src/components/constants/purchase";
 import { toast } from "react-toastify";
 import { path } from "src/components/constants/path";
+
 export default function ProductDetail() {
   const queryClient = useQueryClient()
   const [buyCount, setBuyCount] = useState(1)
