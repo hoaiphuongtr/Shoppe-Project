@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import HttpStatusCode from 'src/components/constants/httpStatusCode.enum';
 import defaultUserImage from 'src/assets/images/user.svg';
+import { ErrorResponseApi } from 'src/types/utils.type';
+
 export function isAxiosError<T>(error: unknown): error is AxiosError<T> {
     return axios.isAxiosError(error);
 }
@@ -10,6 +12,23 @@ export function isAxiosUnprocessableEntityError<FormError>(
     return (
         isAxiosError(error) &&
         error.response?.status === HttpStatusCode.UnprocessableEntity
+    );
+}
+export function isAxiosUnauthorizedError<UnauthorizedError>(
+    error: unknown
+): error is AxiosError<UnauthorizedError> {
+    return (
+        isAxiosError(error) &&
+        error.response?.status === HttpStatusCode.Unauthorized
+    );
+}
+export function isAxiosExpiredTokenError<UnauthorizedError>(
+    error: unknown
+): error is AxiosError<UnauthorizedError> {
+    return (
+        isAxiosUnauthorizedError<
+            ErrorResponseApi<{ name: string; message: string }>
+        >(error) && error.response?.data?.data?.name === 'EXPIRED_TOKEN'
     );
 }
 export function formatCurrency(currency: number) {

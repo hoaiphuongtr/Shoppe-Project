@@ -63,7 +63,7 @@ export default function PopOver({
     });
 
     return (
-        <div
+        <ELement
             ref={refs.setReference}
             className={className}
             onMouseEnter={() => setIsOpen(true)}
@@ -108,6 +108,6 @@ export default function PopOver({
                     )}
                 </AnimatePresence>
             </FloatingPortal>
-        </div>
+        </ELement>
     );
 }

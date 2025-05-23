@@ -2,7 +2,7 @@ import { createSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import classNames from 'classnames';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import { QueryConfig } from 'src/hooks/useQueryConfig';
 import Button from 'src/components/Button';
 import { path } from 'src/components/constants/path';

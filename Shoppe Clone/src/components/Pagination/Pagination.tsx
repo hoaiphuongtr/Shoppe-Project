@@ -1,7 +1,8 @@
 import classNames from 'classnames';
 import { Link, createSearchParams } from 'react-router-dom';
-import { QueryConfig } from 'src/pages/ProductList/ProductList';
+
 import { path } from '../constants/path';
+import { QueryConfig } from 'src/hooks/useQueryConfig';
 interface Props {
     queryConfig: QueryConfig;
     pageLimit: number;
@@ -78,7 +79,7 @@ export default function Pagination({ queryConfig, pageLimit }: Props) {
 
             {renderPagination()}
             {page === pageLimit ? (
-                <span className='bg-white rounded px-3 py-2 shadow-sm mx-2 cursor-not-allowed border bg-white/60'>
+                <span className='rounded px-3 py-2 shadow-sm mx-2 cursor-not-allowed border bg-white/60'>
                     Next
                 </span>
             ) : (

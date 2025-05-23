@@ -12,8 +12,8 @@ import { isAxiosUnprocessableEntityError } from 'src/utils/utils';
 import { Schema, schema } from 'src/utils/rules';
 import { AppContext } from 'src/contexts/app.context';
 
-type FormData = Pick<Schema,'email' | 'password'>
-const loginSchema = schema.pick(['email','password'])
+type FormData = Pick<Schema, 'email' | 'password'>
+const loginSchema = schema.pick(['email', 'password'])
 
 export default function Login() {
     const {
@@ -34,7 +34,7 @@ export default function Login() {
             onSuccess: (data) => {
                 setIsAuthenticated(true);
                 setProfile(data.data.data.user);
-                navigate('/');
+                navigate(path.home);
             },
             onError: (error) => {
                 if (
@@ -55,7 +55,7 @@ export default function Login() {
             }
         });
     });
-    
+
     return (
         <div className='bg-orange'>
             <div className='container'>

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import authApi from './../../apis/auth.api';
 import Input from 'src/components/Input';
 import Button from 'src/components/Button';
@@ -12,9 +12,10 @@ import { schema, Schema } from 'src/utils/rules';
 import { isAxiosUnprocessableEntityError } from 'src/utils/utils';
 import { ErrorResponseApi } from 'src/types/utils.type';
 import { AppContext } from 'src/contexts/app.context';
+import { toast } from 'react-toastify';
 
-type FormData = Pick<Schema,'confirm_password'|'password'|'email'>;
-const registerSchema = schema.pick(['confirm_password','email','password'])
+type FormData = Pick<Schema, 'confirm_password' | 'password' | 'email'>;
+const registerSchema = schema.pick(['confirm_password', 'email', 'password'])
 
 export default function Register() {
     const { setProfile } = useContext(AppContext);
@@ -36,6 +37,7 @@ export default function Register() {
         registerAccountMutation.mutate(body, {
             onSuccess: (data) => {
                 setProfile(data.data.data.user);
+                toast.success(data.data.message);
                 navigate(path.login, { replace: true });
             },
             onError: (error) => {
@@ -52,10 +54,10 @@ export default function Register() {
                                 {
                                     message:
                                         errorForm[
-                                            key as keyof Omit<
-                                                FormData,
-                                                'confirm_password'
-                                            >
+                                        key as keyof Omit<
+                                            FormData,
+                                            'confirm_password'
+                                        >
                                         ],
                                     type: 'Server'
                                 }
@@ -106,6 +108,7 @@ export default function Register() {
                                 register={register}
                                 type='password'
                                 autoComplete='on'
+
                                 errorMessage={errors.password?.message}
                             />
 
@@ -135,7 +138,7 @@ export default function Register() {
                                     Bạn đã có tài khoản?
                                 </span>
                                 <Link
-                                    className='text-red-400 ml-1'
+                                    className='text-red-400 ml-2'
                                     to={path.login}
                                 >
                                     Đăng nhập

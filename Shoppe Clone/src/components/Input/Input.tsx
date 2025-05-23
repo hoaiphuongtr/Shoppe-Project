@@ -20,7 +20,7 @@ export default function Input({
     errorMessage,
     classNameError = 'mt-1 text-red-600 min-h-[1.25rem] text-sm',
     name,
-    classNameEye = 'size-5 absolute top-[13px] right-[5px] cursor-pointer',
+    classNameEye = 'size-5 absolute top-[8px] right-[5px] cursor-pointer opacity-50 hover:opacity-75',
     ...rest
 }: Props) {
     const registerResult = register && name ? register(name, rules) : {};
@@ -35,16 +35,16 @@ export default function Input({
         return rest.type
     }
     return (
-        <div className={className}>
+        <div className={'relative ' + className}>
             <input
                 className={classNameInput}
                 {...rest}
                 {...registerResult}
                 type={handleType()}
             />
-            {rest.type == 'password' && openEye && (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className={classNameEye} onClick={toggle}>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            {rest.type == 'password' && openEye && (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={classNameEye} onClick={toggle}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>)}
             {rest.type == 'password' && !openEye && (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={classNameEye} onClick={toggle}>

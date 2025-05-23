@@ -1,7 +1,7 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import { ExtendPurchase } from 'src/types/purchase.type';
 import { User } from 'src/types/user.type';
-import { getAccessTokenFromLS, getProfileFromLS } from 'src/utils/auth';
+import { getAccessTokenFromLS, getProfileFromLS, localStorageEventTarget } from 'src/utils/auth';
 
 interface AppContextType {
     isAuthenticated: boolean;
@@ -12,6 +12,7 @@ interface AppContextType {
     setExtendedPurchase: React.Dispatch<React.SetStateAction<ExtendPurchase[]>>,
     reset: () => void
 }
+
 const initialAppContext: AppContextType = {
     isAuthenticated: Boolean(getAccessTokenFromLS()),
     setIsAuthenticated: () => null,
@@ -21,7 +22,9 @@ const initialAppContext: AppContextType = {
     setExtendedPurchase: () => null,
     reset: () => null
 };
+
 export const AppContext = createContext<AppContextType>(initialAppContext);
+
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(
         initialAppContext.isAuthenticated
@@ -29,12 +32,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const [profile, setProfile] = useState<User | null>(
         initialAppContext.profile
     );
-    const [extendedPurchases, setExtendedPurchase] = useState<ExtendPurchase[]>(initialAppContext.extendedPurchases)
+    const [extendedPurchases, setExtendedPurchase] = useState<ExtendPurchase[]>(initialAppContext.extendedPurchases);
+
+    // useEffect(() => {
+    //     const handleClearLS = () => {
+    //         setIsAuthenticated(false);
+    //         setProfile(null);
+    //         setExtendedPurchase([]);
+    //     };
+    //     localStorageEventTarget.addEventListener('clearLS', handleClearLS);
+    //     return () => {
+    //         localStorageEventTarget.removeEventListener('clearLS', handleClearLS);
+    //     };
+    // }, []);
+
     const reset = () => {
         setIsAuthenticated(false);
         setProfile(null);
-        setExtendedPurchase([])
-    }
+        setExtendedPurchase([]);
+    };
+
     return (
         <AppContext.Provider
             value={{ isAuthenticated, setIsAuthenticated, profile, setProfile, extendedPurchases, setExtendedPurchase, reset }}

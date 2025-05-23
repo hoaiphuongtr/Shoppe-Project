@@ -1,5 +1,5 @@
 import { createSearchParams, Link, useNavigate } from 'react-router-dom';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import classNames from 'classnames';
 import { QueryConfig } from 'src/hooks/useQueryConfig';
 import { path } from 'src/components/constants/path';
@@ -142,7 +142,7 @@ export default function SortProductList({ queryConfig, pageLimit }: Props) {
                     <span>/{pageLimit}</span>
                     <div className='ml-2 flex items-center'>
                         {page === 1 ? (
-                            <span className='flex w-9 h-8 rounded-l-sm bg-white/30 hover:bg-slate-100 cursor-not-allowed shadow justify-center items-center'>
+                            <span className='flex w-9 h-8 rounded-l-sm bg-white/30 hover:bg-slate-100 cursor-not-allowed shadow justify-center items-center' id='prevButton'>
                                 <svg
                                     xmlns='http://www.w3.org/2000/svg'
                                     fill='none'
@@ -187,7 +187,7 @@ export default function SortProductList({ queryConfig, pageLimit }: Props) {
                         )}
 
                         {page === pageLimit ? (
-                            <span className='flex w-9 h-8 rounded-r-sm bg-white/30 hover:bg-slate-100 cursor-not-allowed shadow justify-center items-center'>
+                            <span className='flex w-9 h-8 rounded-r-sm bg-white/30 hover:bg-slate-100 cursor-not-allowed shadow justify-center items-center' id='nextButton'>
                                 <svg
                                     xmlns='http://www.w3.org/2000/svg'
                                     fill='none'
