@@ -1,0 +1,23 @@
+{
+    "product detail": {
+        "available": "sản phẩm có sẵn",
+        "quantity": "Số lượng",
+        "buy": "Mua ngay",
+        "add to cart": "Thêm vào giỏ hàng",
+        "product description": "Mô tả sản phẩm",
+        "also like": "Có thể bạn cũng thích",
+        "sold": "Đã bán",
+        "off": "giảm"
+    },
+    "sort product": {
+        "sort by": "Sắp xếp theo",
+        "popular": "Phổ Biến",
+        "latest": "Mới Nhất",
+        "top sales": "Bán chạy",
+        "price": "Giá",
+        "sort price": {
+            "low to high": "Giá : Thấp đến Cao",
+            "high to low": "Giá : Cao đến thấp"
+        }
+    }
+}

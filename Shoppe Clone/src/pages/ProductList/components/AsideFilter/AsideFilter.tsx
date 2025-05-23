@@ -11,6 +11,7 @@ import { Schema, schema } from 'src/utils/rules';
 import { Category } from 'src/types/category.type';
 import { NoUndefinedField } from 'src/types/utils.type';
 import RatingStars from '../../RatingStars';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     queryConfig: QueryConfig;
@@ -20,6 +21,7 @@ type FormData = NoUndefinedField<Pick<Schema, 'price_max' | 'price_min'>>
 const priceSchema = schema.pick(['price_max', 'price_min'])
 
 export default function AsideFilter({ categories, queryConfig }: Props) {
+    const { t } = useTranslation()
     const { category } = queryConfig;
     const navigate = useNavigate()
     const { control, handleSubmit, trigger, formState: { errors } } = useForm<FormData>({
@@ -64,7 +66,7 @@ export default function AsideFilter({ categories, queryConfig }: Props) {
                         </g>
                     </g>
                 </svg>
-                Tất cả danh mục
+                {t('aside filter.all categories')}
             </Link>
             <div className='bg-gray-300 h-[1px] my-4' />
             <ul>
@@ -120,11 +122,11 @@ export default function AsideFilter({ categories, queryConfig }: Props) {
                         />
                     </g>
                 </svg>
-                Bộ lọc tìm kiếm
+                {t('aside filter.filter search')}
             </Link>
             <div className='bg-gray-300 h-[1px] my-4' />
             <div className='my-5'>
-                <div>Khoảng giá</div>
+                <div>{t('aside filter.filter price.range')}</div>
                 <form className='mt-2' onSubmit={onSubmit}>
                     <div className='flex items-start'>
                         <Controller control={control} name='price_min' render={({ field: { onChange, value, ref } }) => {
@@ -136,7 +138,7 @@ export default function AsideFilter({ categories, queryConfig }: Props) {
                                         onChange(event);
                                         trigger('price_max')
                                     }}
-                                    placeholder='₫ TỪ'
+                                    placeholder={`₫ ${t('aside filter.filter price.min')}`}
                                     classNameError='hidden'
                                     classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
                                     value={value}
@@ -155,7 +157,7 @@ export default function AsideFilter({ categories, queryConfig }: Props) {
                                         onChange(event);
                                         trigger('price_min')
                                     }}
-                                    placeholder='₫ ĐẾN'
+                                    placeholder={`₫ ${t('aside filter.filter price.max')}`}
                                     classNameError='hidden'
                                     classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
                                     value={value}
@@ -166,16 +168,16 @@ export default function AsideFilter({ categories, queryConfig }: Props) {
                     </div>
                     <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm text-center'>{errors.price_min?.message}</div>
                     <Button className='w-full p-2 uppercase bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center'>
-                        Áp dụng
+                        {t('aside filter.apply')}
                     </Button>
                 </form>
             </div>
             <div className='bg-gray-300 h-[1px] my-4' />
-            <div className='text-sm'>Đánh giá</div>
+            <div className='text-sm'>{t('aside filter.rating filter.rating')}</div>
             <RatingStars queryConfig={queryConfig} />
             <div className='bg-gray-300 h-[1px] my-4' />
             <Button className='w-full p-2 uppercase bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center' onClick={handleRemoveAll}>
-                Xóa tất cả
+                {t('aside filter.clear')}
             </Button>
         </div>
     );

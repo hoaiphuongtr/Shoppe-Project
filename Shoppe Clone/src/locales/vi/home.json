@@ -1,0 +1,27 @@
+{
+    "aside filter": {
+        "all categories": "Tất cả danh mục",
+        "filter search": "Bộ lọc tìm kiếm",
+
+        "filter price": {
+            "range": "Khoảng giá",
+            "min": "TỪ",
+            "max": "ĐẾN"
+        },
+        "rating filter": {
+            "rating": "Đánh giá",
+            "up": "Trở lên"
+        },
+        "apply": "Áp dụng",
+        "clear": "Xóa tất cả"
+    },
+    "nav header": {
+        "notification": "Thông báo",
+        "help": "Hỗ trợ",
+        "register": "Đăng ký",
+        "login": "Đăng nhập",
+        "account": "Tài khoản của tôi",
+        "purchase history": "Đơn mua",
+        "logout": "Đăng xuất"
+    }
+}

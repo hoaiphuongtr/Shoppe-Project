@@ -1,0 +1,27 @@
+{
+    "aside filter": {
+        "all categories": "All Categories",
+        "filter search": "Search Filter",
+
+        "filter price": {
+            "range": "Price Range",
+            "min": "MIN",
+            "max": "MAX"
+        },
+        "rating filter": {
+            "rating": "Rating",
+            "up": "& Up"
+        },
+        "apply": "Apply",
+        "clear": "Clear All"
+    },
+    "nav header": {
+        "notification": "Notifications",
+        "help": "Help",
+        "register": "Register",
+        "login": "Login",
+        "account": "My Account",
+        "purchase history": "My Purchase",
+        "logout": "Logout"
+    }
+}

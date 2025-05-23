@@ -1,0 +1,23 @@
+{
+    "product detail": {
+        "available": "Available product",
+        "quantity": "Quantity",
+        "buy": "Buy Now",
+        "add to cart": "Add To Cart",
+        "product description": "Product Description",
+        "also like": "you may also like",
+        "sold": "Sold",
+        "off": "off"
+    },
+    "sort product": {
+        "sort by": "Sort by",
+        "popular": "Popular",
+        "latest": "Latest",
+        "top sales": "Top Sales",
+        "price": "Price",
+        "sort price": {
+            "low to high": "Price : Low to High",
+            "high to low ": "Price : High to Low"
+        }
+    }
+}
